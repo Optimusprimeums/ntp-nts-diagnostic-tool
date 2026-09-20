@@ -1,4 +1,4 @@
-name: Linux and macOS Build
+name: Linux Build
 
 on:
   push:
@@ -20,12 +20,6 @@ jobs:
           - os: ubuntu-22.04
             artifact: NTP-NTS-Diagnostic-Tool-Linux-x86_64
             archive: NTP-NTS-Diagnostic-Tool-Linux-x86_64.tar.gz
-          - os: macos-14
-            artifact: NTP-NTS-Diagnostic-Tool-macOS-AppleSilicon
-            archive: NTP-NTS-Diagnostic-Tool-macOS-AppleSilicon.tar.gz
-          - os: macos-13
-            artifact: NTP-NTS-Diagnostic-Tool-macOS-Intel
-            archive: NTP-NTS-Diagnostic-Tool-macOS-Intel.tar.gz
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
