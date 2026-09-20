@@ -1,6 +1,6 @@
 # Interface Guide
 
-![Annotated interface overview](../../screenshots/ntp-nts-diagnostic-tool-overview.svg)
+![Annotated interface overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
 The v2.0.2 interface contains **Configuration**, **Real-Time Statistics**, and **Running Log**.
 
