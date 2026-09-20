@@ -2,13 +2,17 @@
 
 ![Annotated interface overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
-The v2.0.2 interface contains **Configuration**, **Real-Time Statistics**, and **Running Log**.
+The interface contains **Configuration**, **Real-Time Statistics**, and **Running Log**. The v2.1.0 development interface additionally includes **NTP Peer Test Responder** controls.
 
 ## Configuration
 
 **Server (IP/FQDN)** selects the target. **Number of Requests** and **Delay (ms)** control the test duration. **Enable NTS (TCP 4460)** enables RFC 8915 NTS. **Skip TLS certificate verification** is for controlled certificate diagnostics and should remain unchecked normally.
 
 **Log to File** preserves the full diagnostic output. **Select Log File...** chooses its destination. **Start Requests** begins a run and **Stop** interrupts it.
+
+## NTP Peer Test Responder (v2.1.0 development)
+
+The responder has a configurable **Bind** address, **UDP Port**, **Response Mode**, and independent **Start Responder / Stop Responder** controls. It monitors incoming peer/client requests in the Running Log and can return controlled valid or fault-injected NTP responses. See [NTP Peer Monitoring & Fault Injection](NTP-Peer-Monitoring-and-Fault-Injection.md).
 
 ## Real-Time Statistics
 
