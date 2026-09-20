@@ -30,6 +30,12 @@ The responder preserves the original peer-test behaviors: `valid`, `kod` (RATE),
 
 This makes the tool useful in both directions: it can actively test an NTP/NTS server, or act as a controlled NTP server endpoint while monitoring how another NTP peer/client behaves under valid, malformed, stale, delayed, unsynchronized and policy-response conditions.
 
+### Automated peer responder self-test
+
+v2.1.0 also includes **Run Self-Test Suite**. The suite starts each responder mode on loopback using an ephemeral UDP port, generates controlled NTP requests, inspects the resulting wire packets, and reports explicit `[PASS]` / `[FAIL]` results in the Running Log. It covers the normal response, RATE/DENY/RSTR KoD, bad originate, short response, wrong mode/version, zero T2/T3, LI alarm, stratum 16, duplicate T3, replay, drop/timeout, delayed response, ±100 ms timestamp shifts, and 100 ms processing delay.
+
+The self-test validates the **responder's generated behavior**. It intentionally does not claim that an external peer accepted or rejected a condition; use the responder log together with the external peer's own monitoring/status for interoperability conclusions.
+
 > **Development note:** v2.1.0 is not yet the tagged stable release. Keep v2.0.2 for the validated public-NTS baseline until v2.1.0 regression testing is complete.
 
 ## Validated interoperability
