@@ -18,3 +18,8 @@ Welcome to the user documentation for **NTP/NTS Diagnostic Tool**. v2.0.2 remain
 - [Security & Technical Notes](Security-and-Technical-Notes.md)
 
 Version 2.0.2 is retained as the project's known-good interoperability baseline. It has completed authenticated NTS exchanges against Cloudflare's public NTS service and an independent ESP32-P4 NTS implementation.
+
+## v2.1.0 additions
+
+The development release also adds **Copy Log** and **Clear Log** controls to the Running Log. Linux gains a headless command-line distribution for NTP/NTS queries, peer fault injection, and responder smoke testing, so a desktop session is not required for the Linux CLI.
+
