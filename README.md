@@ -2,7 +2,7 @@
 
 A Windows diagnostic utility for testing **NTPv4** and **Network Time Security (NTS)** servers.
 
-Version **2.0.2** is the current known-good interoperability baseline. It performs real NTS Key Establishment over TLS 1.3, negotiates `ntske/1`, derives client-to-server and server-to-client keys with the TLS exporter, exchanges NTS cookies, creates authenticated NTP requests using AEAD AES-SIV-CMAC-256, verifies authenticated replies, and reports NTP offset and network delay.
+Version **2.0.2** remains the known-good NTS interoperability baseline. **v2.1.0 is the current development version** and adds an integrated NTP peer test responder and fault-injection/peer-monitoring tools. It performs real NTS Key Establishment over TLS 1.3, negotiates `ntske/1`, derives client-to-server and server-to-client keys with the TLS exporter, exchanges NTS cookies, creates authenticated NTP requests using AEAD AES-SIV-CMAC-256, verifies authenticated replies, and reports NTP offset and network delay.
 
 ![Annotated NTP/NTS Diagnostic Tool v2.0.2 overview](screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
@@ -21,6 +21,16 @@ Version **2.0.2** is the current known-good interoperability baseline. It perfor
 9. For NTS, look for **NTS-KE SUCCESS** followed by **NTS AUTHENTICATED** on each successful exchange.
 
 See the [complete user guide](docs/wiki/Home.md) for field descriptions, examples, output interpretation, certificate troubleshooting, and timing limitations.
+
+## NTP peer monitoring and fault injection
+
+v2.1.0 adds an integrated **NTP Peer Test Responder**. It listens for incoming NTP client/peer requests, logs the source address, request size and selected response behavior, and sends controlled replies so peer implementations can be monitored and validated.
+
+The responder preserves the original peer-test behaviors: `valid`, `kod` (RATE), `bad-originate`, `short` (16-byte malformed reply), and `duplicate` T3. Advanced modes add `kod-deny`, `kod-rstr`, `wrong-mode`, `bad-version`, `zero-t2`, `zero-t3`, `li-alarm`, `stratum-16`, `drop`, `delayed`, ±100 ms timestamp offset, 100 ms processing delay, and full-response `replay`.
+
+This makes the tool useful in both directions: it can actively test an NTP/NTS server, or act as a controlled NTP server endpoint while monitoring how another NTP peer/client behaves under valid, malformed, stale, delayed, unsynchronized and policy-response conditions.
+
+> **Development note:** v2.1.0 is not yet the tagged stable release. Keep v2.0.2 for the validated public-NTS baseline until v2.1.0 regression testing is complete.
 
 ## Validated interoperability
 
