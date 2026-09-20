@@ -1,15 +1,17 @@
+import ctypes
 import datetime
 import ipaddress
 import os
 import queue
 import select
+import subprocess
 import socket
 import struct
 import threading
 import time
 import tkinter as tk
 from dataclasses import dataclass, field
-from tkinter import filedialog, scrolledtext, ttk
+from tkinter import filedialog, messagebox, scrolledtext, ttk
 
 import certifi
 from cryptography.hazmat.primitives.ciphers.aead import AESSIV
@@ -147,6 +149,34 @@ def is_ip_literal(host: str) -> bool:
         ipaddress.ip_address(host.rstrip("."))
         return True
     except ValueError:
+        return False
+
+
+def is_windows_admin() -> bool:
+    if os.name != "nt":
+        return False
+    try:
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
+
+
+def restart_as_admin():
+    if os.name != "nt":
+        return False
+    try:
+        import sys
+        if getattr(sys, "frozen", False):
+            executable = sys.executable
+            params = subprocess.list2cmdline(sys.argv[1:])
+        else:
+            executable = sys.executable
+            params = subprocess.list2cmdline([os.path.abspath(sys.argv[0])] + sys.argv[1:])
+        rc = ctypes.windll.shell32.ShellExecuteW(
+            None, "runas", executable, params, None, 1
+        )
+        return rc > 32
+    except Exception:
         return False
 
 
@@ -509,6 +539,7 @@ class NTPApp:
         self.peer_suite_failed = 0
         self.setup_ui()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.root.after(250, self.startup_windows_permissions_prompt)
 
     def setup_ui(self):
         ctrl = ttk.LabelFrame(self.root, text="Configuration", padding=10)
@@ -573,6 +604,82 @@ class NTPApp:
         out.pack(fill="both", expand=True)
         self.log_text = scrolledtext.ScrolledText(out, wrap=tk.WORD, font=("Consolas", 9), state="disabled", bg="#1e1e1e", fg="#cccccc")
         self.log_text.pack(fill="both", expand=True)
+
+    def startup_windows_permissions_prompt(self):
+        if os.name != "nt":
+            return
+        admin = is_windows_admin()
+        self.log_message(f"Windows privilege status: Administrator={'YES' if admin else 'NO'}")
+        if not admin:
+            elevate = messagebox.askyesno(
+                "Administrator privileges recommended",
+                "NTP/NTS Diagnostic Tool v2.1.0 includes an NTP Peer Test Responder.\n\n"
+                "Administrator privileges are recommended when listening on UDP/123 "
+                "and are required to create the optional Windows Firewall rule.\n\n"
+                "Restart this application as Administrator now?\n\n"
+                "Choose No to continue normally. The NTP/NTS client and responder "
+                "on other available ports can still be used."
+            )
+            if elevate:
+                if restart_as_admin():
+                    self.root.after(100, self.root.destroy)
+                    return
+                messagebox.showwarning(
+                    "Elevation failed",
+                    "Windows did not start an elevated copy. Continuing normally."
+                )
+            return
+
+        add_rule = messagebox.askyesno(
+            "Windows Firewall permission",
+            "Allow inbound NTP peer-test traffic through Windows Defender Firewall?\n\n"
+            "This will create or refresh an inbound rule named:\n"
+            "NTP-NTS Diagnostic Tool Peer Responder\n\n"
+            "Protocol: UDP\nLocal port: 123\nProfiles: Domain, Private\n\n"
+            "Choose No if you only use loopback/local testing or manage firewall policy separately."
+        )
+        if add_rule:
+            self.configure_windows_firewall_rule()
+
+    def configure_windows_firewall_rule(self):
+        if os.name != "nt":
+            return
+        if not is_windows_admin():
+            self.log_message("FIREWALL: Administrator privileges are required to change Windows Firewall.")
+            return
+        rule = "NTP-NTS Diagnostic Tool Peer Responder"
+        try:
+            # Delete an older rule of the same name so the resulting rule is deterministic.
+            subprocess.run(
+                ["netsh", "advfirewall", "firewall", "delete", "rule", f"name={rule}"],
+                capture_output=True, text=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+            result = subprocess.run(
+                [
+                    "netsh", "advfirewall", "firewall", "add", "rule",
+                    f"name={rule}", "dir=in", "action=allow", "protocol=UDP",
+                    "localport=123", "profile=domain,private", "enable=yes"
+                ],
+                capture_output=True, text=True,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+            if result.returncode == 0:
+                self.log_message(
+                    "FIREWALL: inbound UDP/123 allowed for Domain/Private profiles "
+                    f"(rule: {rule})."
+                )
+                messagebox.showinfo(
+                    "Firewall rule configured",
+                    "Inbound UDP/123 is now allowed on Domain and Private profiles "
+                    "for the NTP Peer Test Responder."
+                )
+            else:
+                detail = (result.stderr or result.stdout or "netsh returned an error").strip()
+                self.log_message(f"FIREWALL ERROR: {detail}")
+                messagebox.showwarning("Firewall rule failed", detail)
+        except Exception as exc:
+            self.log_message(f"FIREWALL ERROR [{type(exc).__name__}]: {exc}")
+            messagebox.showwarning("Firewall rule failed", str(exc))
 
     def start_peer_self_test(self):
         if self.peer_suite_running or (self.peer_thread and self.peer_thread.is_alive()):
