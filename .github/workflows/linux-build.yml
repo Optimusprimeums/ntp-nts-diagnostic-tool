@@ -1,0 +1,83 @@
+name: Linux Build
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: NTP-NTS-Diagnostic-Tool-Linux-x86_64
+            archive: NTP-NTS-Diagnostic-Tool-Linux-x86_64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Find latest versioned source
+        id: source
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import pathlib, re
+          rx = re.compile(r"^ntp_nts_tester_v(\d+)(?:_(\d+))?(?:_(\d+))?(?:_(\d+))?\.py$")
+          found = []
+          for p in pathlib.Path(".").glob("ntp_nts_tester_v*.py"):
+              m = rx.match(p.name)
+              if m:
+                  key = tuple(int(x or 0) for x in m.groups())
+                  found.append((key, p.name))
+          if not found:
+              raise SystemExit("No versioned source found")
+          print("file=" + max(found)[1])
+          PY
+
+      - name: Build standalone application
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed \
+            --name "NTP-NTS-Diagnostic-Tool" "${{ steps.source.outputs.file }}"
+
+      - name: Package distribution
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            ditto -c -k --sequesterRsrc --keepParent               "dist/NTP-NTS-Diagnostic-Tool.app"               "${{ matrix.archive }}"
+          else
+            tar -C dist -czf "${{ matrix.archive }}" NTP-NTS-Diagnostic-Tool
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+      - name: Attach distribution to tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.archive }}
