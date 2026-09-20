@@ -11,3 +11,6 @@ For stability tests, compare Sent/Received and watch Failures, NTS Failures, and
 ## Peer responder results (v2.1.0 development)
 
 Responder log lines identify the requesting peer address, datagram size and active response mode. The responder then records whether it sent a normal/fault-injected response, deliberately dropped the request, delayed it, or replayed an earlier response. Use the peer's own logs/status together with this responder log to determine whether the peer accepted, rejected, timed out, backed off, or otherwise handled the injected condition.
+
+The GUI's **Copy Log** control is useful for preserving the complete displayed diagnostic output for analysis or issue reports. **Clear Log** resets only the display; it does not remove a configured log file.
+
