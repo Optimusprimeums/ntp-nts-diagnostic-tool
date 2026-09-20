@@ -1,6 +1,6 @@
 # NTP/NTS Diagnostic Tool Wiki
 
-Welcome to the user documentation for **NTP/NTS Diagnostic Tool v2.0.2**, a Windows diagnostic client for NTPv4 and RFC 8915 Network Time Security.
+Welcome to the user documentation for **NTP/NTS Diagnostic Tool**. v2.0.2 remains the known-good NTS interoperability baseline; v2.1.0 is the development version adding integrated NTP peer monitoring, a peer test responder, and fault injection.
 
 ![Annotated NTP/NTS Diagnostic Tool overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
@@ -9,6 +9,7 @@ Welcome to the user documentation for **NTP/NTS Diagnostic Tool v2.0.2**, a Wind
 - [Getting Started](Getting-Started.md)
 - [Interface Guide](Interface-Guide.md)
 - [Testing an NTP Server](Testing-an-NTP-Server.md)
+- [NTP Peer Monitoring & Fault Injection](NTP-Peer-Monitoring-and-Fault-Injection.md)
 - [Testing an NTS Server](Testing-an-NTS-Server.md)
 - [Understanding Results](Understanding-Results.md)
 - [Stability Testing](Stability-Testing.md)
