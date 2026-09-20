@@ -29,3 +29,8 @@
 **Firewall prompt:** when elevated, approving the prompt creates/refreshes the `NTP-NTS Diagnostic Tool Peer Responder` inbound UDP/123 rule for Domain/Private profiles. Public networks are not opened automatically.
 
 **Remote peer still cannot reach UDP/123:** verify the active Windows network profile, confirm the firewall rule is enabled, confirm another service is not bound to UDP/123, and verify routing/VLAN policy between the peer and test workstation.
+
+**Linux CLI will not bind UDP/123:** check whether another NTP service already owns the port and check the host's privileged-port policy. Depending on the system, use administrator privileges or an appropriate capability such as `CAP_NET_BIND_SERVICE`. Firewall configuration is not changed automatically on Linux.
+
+**Linux headless use:** the v2.1.0 Linux CLI is intended to run without X11/Wayland. If a build unexpectedly reports a Tk/display dependency, treat that build as a packaging defect rather than configuring a virtual display.
+
