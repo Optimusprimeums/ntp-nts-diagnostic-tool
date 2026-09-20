@@ -4,6 +4,7 @@
 - [Getting Started](Getting-Started.md)
 - [Interface Guide](Interface-Guide.md)
 - [Testing an NTP Server](Testing-an-NTP-Server.md)
+- [NTP Peer Monitoring & Fault Injection](NTP-Peer-Monitoring-and-Fault-Injection.md)
 - [Testing an NTS Server](Testing-an-NTS-Server.md)
 - [Understanding Results](Understanding-Results.md)
 - [Stability Testing](Stability-Testing.md)
