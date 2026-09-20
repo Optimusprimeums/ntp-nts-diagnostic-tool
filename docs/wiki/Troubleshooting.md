@@ -22,3 +22,10 @@
 **Peer sends no requests:** verify that the peer is configured for the responder's address/port and that host/network firewalls permit UDP traffic.
 
 **Fault mode appears to have no effect:** confirm the Running Log shows incoming requests and the intended response mode. Then inspect the peer's own monitoring/logs; several fault modes are specifically designed to be rejected silently by a correct peer.
+
+
+**Administrator prompt at startup:** v2.1.0 recommends elevation for UDP/123 peer-responder operation and for firewall-rule creation. You may decline and continue normally.
+
+**Firewall prompt:** when elevated, approving the prompt creates/refreshes the `NTP-NTS Diagnostic Tool Peer Responder` inbound UDP/123 rule for Domain/Private profiles. Public networks are not opened automatically.
+
+**Remote peer still cannot reach UDP/123:** verify the active Windows network profile, confirm the firewall rule is enabled, confirm another service is not bound to UDP/123, and verify routing/VLAN policy between the peer and test workstation.
