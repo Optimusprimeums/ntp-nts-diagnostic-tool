@@ -1,0 +1,58 @@
+name: Windows Build
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install pyinstaller
+      - name: Find latest versioned source
+        id: source
+        shell: pwsh
+        run: |
+          $items = Get-ChildItem -File 'ntp_nts_tester_v*.py' | ForEach-Object {
+            if ($_.BaseName -match '^ntp_nts_tester_v(\d+)(?:_(\d+))?(?:_(\d+))?(?:_(\d+))?$') {
+              $parts = @([int]$Matches[1], $(if ($Matches[2]) {[int]$Matches[2]} else {0}), $(if ($Matches[3]) {[int]$Matches[3]} else {0}), $(if ($Matches[4]) {[int]$Matches[4]} else {0}))
+              [pscustomobject]@{Name=$_.Name; Key=('{0:D8}.{1:D8}.{2:D8}.{3:D8}' -f $parts[0],$parts[1],$parts[2],$parts[3])}
+            }
+          }
+          $latest = $items | Sort-Object Key -Descending | Select-Object -First 1
+          if (-not $latest) { throw "No versioned ntp_nts_tester_v*.py source found." }
+          "file=$($latest.Name)" >> $env:GITHUB_OUTPUT
+      - name: Build standalone Windows executable
+        shell: pwsh
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name "NTP-NTS-Diagnostic-Tool" "${{ steps.source.outputs.file }}"
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NTP-NTS-Diagnostic-Tool-Windows
+          path: dist/NTP-NTS-Diagnostic-Tool.exe
+          if-no-files-found: error
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/NTP-NTS-Diagnostic-Tool.exe
+          generate_release_notes: true
