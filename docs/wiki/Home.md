@@ -2,7 +2,7 @@
 
 Welcome to the user documentation for **NTP/NTS Diagnostic Tool v2.0.2**, a Windows diagnostic client for NTPv4 and RFC 8915 Network Time Security.
 
-![Annotated NTP/NTS Diagnostic Tool overview](../../screenshots/ntp-nts-diagnostic-tool-overview.svg)
+![Annotated NTP/NTS Diagnostic Tool overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
 ## Documentation
 
