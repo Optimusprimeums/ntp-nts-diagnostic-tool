@@ -1,0 +1,69 @@
+name: Publish Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/wiki/**"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-wiki
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Sync docs/wiki to GitHub Wiki
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Wiki source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/wiki/Home.md
+          test -f docs/wiki/_Sidebar.md
+          if grep -R -nE '\]\([^)]*\.md([#)]|$)' docs/wiki --include='*.md'; then
+            echo "::error::Repository-style .md links found in docs/wiki. Use GitHub Wiki-native page links."
+            exit 1
+          fi
+
+      - name: Publish Wiki
+        env:
+          GH_TOKEN: ${{ secrets.WIKI_PAT }}
+          WIKI_REPO: github.com/${{ github.repository }}.wiki.git
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::Repository secret WIKI_PAT is not configured."
+            echo "::error::Create a fine-grained GitHub PAT with repository Contents read/write access and store it as WIKI_PAT."
+            exit 1
+          fi
+
+          git clone "https://x-access-token:${GH_TOKEN}@${WIKI_REPO}" wiki
+
+          find wiki -mindepth 1 -maxdepth 1 -type f -name '*.md' -delete
+          cp docs/wiki/*.md wiki/
+
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Wiki already matches docs/wiki."
+            exit 0
+          fi
+
+          git commit -m "Sync Wiki from main (${GITHUB_SHA::7})"
+          git push origin HEAD:master
