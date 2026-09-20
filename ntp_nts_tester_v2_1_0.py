@@ -542,7 +542,7 @@ class NTPApp:
         ttk.Label(peer, text="Response Mode:").grid(row=0, column=4, sticky="w", padx=5, pady=5)
         self.peer_mode = ttk.Combobox(
             peer, textvariable=self.peer_mode_var, state="readonly", width=15,
-            values=("valid", "kod", "bad-originate", "short", "duplicate")
+            values=("valid", "kod", "kod-deny", "kod-rstr", "bad-originate", "short", "duplicate", "wrong-mode", "bad-version", "zero-t2", "zero-t3", "li-alarm", "stratum-16", "drop", "delayed", "offset-plus-100ms", "offset-minus-100ms", "processing-100ms", "replay")
         )
         self.peer_mode.grid(row=0, column=5, padx=5, pady=5)
         self.btn_peer_start = ttk.Button(peer, text="Start Responder", command=self.start_peer_responder)
@@ -551,7 +551,7 @@ class NTPApp:
         self.btn_peer_stop.grid(row=0, column=7, padx=5, pady=5)
         ttk.Label(
             peer,
-            text="Modes: valid | RATE KoD | bad originate timestamp | 16-byte short reply | duplicate transmit timestamp",
+            text="Fault injection: KoD, timestamps, mode/version, LI/stratum, drop/delay, offset, processing delay and replay",
         ).grid(row=1, column=0, columnspan=8, sticky="w", padx=5, pady=(2, 0))
 
         sf = ttk.LabelFrame(self.root, text="Real-Time Statistics", padding=10)
@@ -580,7 +580,7 @@ class NTPApp:
             self.log_message("PEER TEST ERROR: UDP port must be between 1 and 65535.")
             return
         mode = self.peer_mode_var.get().strip().lower()
-        if mode not in {"valid", "kod", "bad-originate", "short", "duplicate"}:
+        if mode not in {"valid", "kod", "kod-deny", "kod-rstr", "bad-originate", "short", "duplicate", "wrong-mode", "bad-version", "zero-t2", "zero-t3", "li-alarm", "stratum-16", "drop", "delayed", "offset-plus-100ms", "offset-minus-100ms", "processing-100ms", "replay"}:
             self.log_message("PEER TEST ERROR: Unknown response mode.")
             return
 
@@ -616,6 +616,7 @@ class NTPApp:
 
     def run_peer_responder(self, bind_host, port, mode):
         duplicate_t3 = None
+        replay_packet = None
         sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -660,17 +661,25 @@ class NTPApp:
 
                 response = bytearray(48)
                 response[0] = 0x24  # LI=0, VN=4, Mode=4 (server)
+                if mode == "wrong-mode":
+                    response[0] = 0x23  # client mode instead of server mode
+                elif mode == "bad-version":
+                    response[0] = 0x04  # VN=0, Mode=4
+                elif mode == "li-alarm":
+                    response[0] = 0xE4  # LI=3, VN=4, Mode=4
                 response[1] = 1
                 response[2] = 6
                 response[3] = 0xEC
                 struct.pack_into("!I", response, 4, 0)
                 struct.pack_into("!I", response, 8, 1)
 
-                if mode == "kod":
+                if mode in {"kod", "kod-deny", "kod-rstr"}:
                     response[1] = 0
-                    response[12:16] = b"RATE"
+                    response[12:16] = {"kod": b"RATE", "kod-deny": b"DENY", "kod-rstr": b"RSTR"}[mode]
                 else:
                     response[12:16] = b"TEST"
+                if mode == "stratum-16":
+                    response[1] = 16
 
                 ref_sec, ref_frac = self._now_ntp_parts()
                 self._put_ntp_parts(response, 16, (ref_sec - 1) & 0xFFFFFFFF, ref_frac)
@@ -681,7 +690,17 @@ class NTPApp:
                     response[24:32] = originate
 
                 recv_sec, recv_frac = self._now_ntp_parts()
-                self._put_ntp_parts(response, 32, recv_sec, recv_frac)
+                if mode == "offset-plus-100ms":
+                    shifted = (recv_sec + recv_frac / 4294967296.0) + 0.100
+                    recv_sec, recv_frac = int(shifted), int((shifted - int(shifted)) * 4294967296) & 0xFFFFFFFF
+                elif mode == "offset-minus-100ms":
+                    shifted = (recv_sec + recv_frac / 4294967296.0) - 0.100
+                    recv_sec, recv_frac = int(shifted), int((shifted - int(shifted)) * 4294967296) & 0xFFFFFFFF
+                if mode != "zero-t2":
+                    self._put_ntp_parts(response, 32, recv_sec, recv_frac)
+
+                if mode == "processing-100ms":
+                    time.sleep(0.100)
 
                 if mode == "duplicate":
                     if duplicate_t3 is None:
@@ -689,9 +708,16 @@ class NTPApp:
                     tx_sec, tx_frac = duplicate_t3
                 else:
                     tx_sec, tx_frac = self._now_ntp_parts()
-                self._put_ntp_parts(response, 40, tx_sec, tx_frac)
+                if mode in {"offset-plus-100ms", "offset-minus-100ms"}:
+                    delta = 0.100 if mode == "offset-plus-100ms" else -0.100
+                    shifted = (tx_sec + tx_frac / 4294967296.0) + delta
+                    tx_sec, tx_frac = int(shifted), int((shifted - int(shifted)) * 4294967296) & 0xFFFFFFFF
+                if mode != "zero-t3":
+                    self._put_ntp_parts(response, 40, tx_sec, tx_frac)
 
                 sock.sendto(response, addr)
+                if mode == "replay" and replay_packet is None:
+                    replay_packet = bytes(response)
                 refid = response[12:16].decode("ascii", errors="replace")
                 self.log_message(
                     f"PEER TEST -> sent response | stratum={response[1]} | refid={refid}"
