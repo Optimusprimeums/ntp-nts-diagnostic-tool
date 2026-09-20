@@ -534,6 +534,9 @@ class NTPApp:
 
         out = ttk.LabelFrame(self.root, text="Running Log", padding=10)
         out.pack(fill="both", expand=True)
+        log_toolbar = ttk.Frame(out)
+        log_toolbar.pack(fill="x", pady=(0, 6))
+        ttk.Button(log_toolbar, text="Copy Log", command=self.copy_log).pack(side="right")
         self.log_text = scrolledtext.ScrolledText(out, wrap=tk.WORD, font=("Consolas", 9), state="disabled", bg="#1e1e1e", fg="#cccccc")
         self.log_text.pack(fill="both", expand=True)
 
@@ -571,6 +574,17 @@ class NTPApp:
                     f.write(full)
             except Exception as exc:
                 self.ui_queue.put(("log", f"[ERROR] Failed to write log file: {exc}\n"))
+
+    def copy_log(self):
+        text = self.log_text.get("1.0", "end-1c")
+        if not text:
+            return
+        try:
+            self.root.clipboard_clear()
+            self.root.clipboard_append(text)
+            self.root.update_idletasks()
+        except tk.TclError as exc:
+            self.log_message(f"ERROR: Unable to copy log to clipboard: {exc}")
 
     def _append_log(self, msg):
         self.log_text.config(state="normal")
