@@ -9,3 +9,8 @@ TLS certificate verification is enabled by default. The application intentionall
 Client T1/T4 are application/userspace observations rather than Ethernet NIC hardware timestamps. The tool is intended for NTP/NTS protocol diagnostics, interoperability validation, and practical timing investigation—not as a sub-microsecond hardware timestamp reference.
 
 Version 2.0.2 is retained as the known-good interoperability baseline.
+
+v2.1.0 Windows permission assistance is explicit and opt-in: elevation and firewall authorization are separate prompts. The optional firewall rule allows inbound UDP/123 on Domain and Private profiles and excludes Public. Linux does not automatically elevate or modify firewall policy.
+
+The Linux v2.1.0 CLI is intended to expose the diagnostic and peer-test functionality without requiring a graphical desktop.
+
