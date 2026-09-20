@@ -20,7 +20,7 @@ A successful authenticated response includes:
 NTS AUTHENTICATED: UID matched, S2C tag verified, new cookies=1, pool=8
 ```
 
-Next: [Interface Guide](Interface-Guide.md).
+Next: [Interface Guide](Interface-Guide).
 
 ## v2.1.0 development builds
 
