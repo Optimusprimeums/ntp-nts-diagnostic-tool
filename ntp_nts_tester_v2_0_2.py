@@ -537,6 +537,7 @@ class NTPApp:
         log_toolbar = ttk.Frame(out)
         log_toolbar.pack(fill="x", pady=(0, 6))
         ttk.Button(log_toolbar, text="Copy Log", command=self.copy_log).pack(side="right")
+        ttk.Button(log_toolbar, text="Clear Log", command=self.clear_log).pack(side="right", padx=(0, 6))
         self.log_text = scrolledtext.ScrolledText(out, wrap=tk.WORD, font=("Consolas", 9), state="disabled", bg="#1e1e1e", fg="#cccccc")
         self.log_text.pack(fill="both", expand=True)
 
@@ -574,6 +575,11 @@ class NTPApp:
                     f.write(full)
             except Exception as exc:
                 self.ui_queue.put(("log", f"[ERROR] Failed to write log file: {exc}\n"))
+
+    def clear_log(self):
+        self.log_text.config(state="normal")
+        self.log_text.delete("1.0", tk.END)
+        self.log_text.config(state="disabled")
 
     def copy_log(self):
         text = self.log_text.get("1.0", "end-1c")
