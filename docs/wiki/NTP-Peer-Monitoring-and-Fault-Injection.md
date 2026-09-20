@@ -74,3 +74,15 @@ Results appear in the Running Log:
 ```
 
 A PASS means the local responder generated the intended wire behavior. It does **not** mean an external NTP implementation correctly handled that behavior. For peer interoperability testing, point the external peer at the responder and correlate this application's Running Log with the peer's own logs/status.
+
+## Headless Linux peer responder
+
+v2.1.0 also provides a Linux CLI responder, allowing fault injection without a graphical desktop:
+
+```bash
+./NTP-NTS-Diagnostic-Tool peer --bind 0.0.0.0 --port 123 --mode valid
+./NTP-NTS-Diagnostic-Tool peer --bind 0.0.0.0 --port 123 --mode replay
+```
+
+The CLI exposes the responder modes used by the v2.1.0 peer-test implementation. Linux firewall and privileged-port configuration remain administrator-controlled.
+
