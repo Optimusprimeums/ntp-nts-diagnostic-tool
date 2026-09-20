@@ -23,3 +23,8 @@ Version 2.0.2 is retained as the project's known-good interoperability baseline.
 
 The development release also adds **Copy Log** and **Clear Log** controls to the Running Log. Linux gains a headless command-line distribution for NTP/NTS queries, peer fault injection, and responder smoke testing, so a desktop session is not required for the Linux CLI.
 
+
+
+## v2.1.0 interface overview
+
+![Annotated NTP/NTS Diagnostic Tool v2.1.0 overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-v2.1.0-overview.svg)
