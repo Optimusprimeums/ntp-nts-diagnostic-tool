@@ -1,37 +1,17 @@
 # Troubleshooting
 
-## NTS-KE connection refused or timeout
+**NTS-KE timeout/refused:** check TCP 4460 reachability, firewall rules, and the NTS-KE service.
 
-The NTS-KE service may be unreachable, not listening on TCP 4460, or blocked by a firewall.
+**ALPN failure:** the TLS peer did not negotiate required `ntske/1`.
 
-## ALPN negotiation failure
+**Certificate validation failure:** check hostname/IP, SAN, validity dates, trust chain, and Windows trust.
 
-RFC 8915 NTS-KE requires the `ntske/1` ALPN. A failure here means the TLS peer did not negotiate the required protocol.
+**No cookies returned:** NTS-KE did not provide material needed for authenticated NTP.
 
-## Certificate validation failure
+**NTS authentication failure:** the response could not be authenticated with the negotiated S2C key.
 
-Check the server name, SAN entries, certificate dates, trust chain, and Windows trust environment. See [TLS & Certificate Troubleshooting](TLS-and-Certificate-Troubleshooting.md).
+**UID/originate mismatch:** the received response does not correspond to the request being validated.
 
-## No cookies returned
+**KoD packet:** inspect the NTP stratum-zero reference identifier and server policy/rate limiting.
 
-The NTS-KE exchange did not provide the cookie material needed for authenticated NTP requests.
-
-## NTS response authentication failed
-
-The returned NTP packet could not be authenticated with the negotiated server-to-client key.
-
-## UID mismatch
-
-The response NTS Unique Identifier does not match the request being validated.
-
-## Originate timestamp mismatch
-
-The returned NTP response does not contain the expected originate timestamp corresponding to the request.
-
-## KoD packet
-
-A Kiss-o'-Death response is an NTP stratum-zero control/rate-limit response. Check the reported reference identifier and server policy.
-
-## Timing looks unexpectedly large
-
-Offset and delay can be affected by Windows userspace timestamp placement, scheduling, path asymmetry, network load, and server timestamp placement. This tool is primarily for protocol diagnostics and interoperability testing.
+**Unexpected timing:** Windows userspace timestamping, scheduling, path asymmetry, load, and server timestamp placement can affect offset/delay.
