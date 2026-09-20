@@ -2,6 +2,14 @@
 
 v2.1.0 adds an integrated **NTP Peer Test Responder** for exercising another NTP implementation while monitoring the requests it sends.
 
+## Windows startup permissions
+
+v2.1.0 performs a Windows privilege check shortly after startup. When the process is not elevated, it offers to restart through the standard Windows UAC **Run as administrator** flow. Declining does not close the application.
+
+When the application is already elevated, it separately asks whether to configure Windows Defender Firewall for inbound peer testing. If approved, it creates/refreshes the rule `NTP-NTS Diagnostic Tool Peer Responder` for inbound **UDP/123** on **Domain and Private** profiles. The Public profile is intentionally excluded.
+
+The elevation and firewall actions are separate and opt-in. Administrator status alone does not guarantee that inbound UDP/123 is permitted through the firewall.
+
 ## What it monitors
 
 When the responder receives an NTP datagram it logs the source IP/port, request length, selected fault-injection mode, response stratum and reference ID. Requests shorter than the 48-byte NTP header are logged and ignored. The responder runs independently from the normal NTP/NTS client worker and can be stopped without closing the application.
