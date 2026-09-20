@@ -4,7 +4,9 @@ A Windows diagnostic utility for testing **NTPv4** and **Network Time Security (
 
 Version **2.0.2** is the current known-good interoperability baseline. It performs real NTS Key Establishment over TLS 1.3, negotiates `ntske/1`, derives client-to-server and server-to-client keys with the TLS exporter, exchanges NTS cookies, creates authenticated NTP requests using AEAD AES-SIV-CMAC-256, verifies authenticated replies, and reports NTP offset and network delay.
 
-![NTP/NTS Diagnostic Tool interface](screenshots/interface-overview.svg)
+<!-- Replace with the real v2.0.2 application screenshot at screenshots/ntp-nts-diagnostic-tool-v2.0.2.png -->
+
+> **Interface:** The v2.0.2 GUI provides server/FQDN, request count, delay, NTS/TLS controls, optional file logging, real-time counters, and a scrolling running log.
 
 ## Quick start
 
@@ -13,7 +15,10 @@ Version **2.0.2** is the current known-good interoperability baseline. It perfor
 3. Leave **Enable NTS** checked for RFC 8915 testing, or clear it for plain NTP.
 4. Keep TLS certificate verification enabled for normal NTS operation.
 5. Choose the request count and delay, then start the test.
-6. For NTS, look for **NTS-KE SUCCESS** followed by **NTS AUTHENTICATED** on each successful exchange.
+6. Optionally enable **Log to File** and choose a destination with **Select Log File...** for long stability runs.
+7. Click **Start Requests**. Use **Stop** to interrupt an active run.
+8. Watch **Real-Time Statistics** for Sent, Received, Failures, NTS Failures, and KoD Packets.
+9. For NTS, look for **NTS-KE SUCCESS** followed by **NTS AUTHENTICATED** on each successful exchange.
 
 See the [complete user guide](docs/wiki/Home.md) for field descriptions, examples, output interpretation, certificate troubleshooting, and timing limitations.
 
