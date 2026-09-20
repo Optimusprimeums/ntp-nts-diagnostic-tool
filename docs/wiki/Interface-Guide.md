@@ -36,3 +36,8 @@ The v2.0.2 and v2.1.0 GUI source includes **Copy Log** and **Clear Log** control
 
 The Linux distribution uses a headless CLI rather than the Tkinter GUI. Its `query`, `peer`, and `self-test` commands are suitable for terminal and SSH use.
 
+
+
+## v2.1.0 interface overview
+
+![Annotated NTP/NTS Diagnostic Tool v2.1.0 overview](https://raw.githubusercontent.com/Optimusprimeums/ntp-nts-diagnostic-tool/main/screenshots/ntp-nts-diagnostic-tool-v2.1.0-overview.svg)
