@@ -30,6 +30,14 @@ The responder preserves the original peer-test behaviors: `valid`, `kod` (RATE),
 
 This makes the tool useful in both directions: it can actively test an NTP/NTS server, or act as a controlled NTP server endpoint while monitoring how another NTP peer/client behaves under valid, malformed, stale, delayed, unsynchronized and policy-response conditions.
 
+### Windows startup permissions
+
+On Windows, v2.1.0 checks whether it is running with Administrator privileges. If it is not elevated, the application offers **Restart as Administrator** through the normal Windows UAC prompt, while still allowing the operator to continue without elevation.
+
+When running elevated, startup also offers to create/refresh a Windows Defender Firewall inbound rule named `NTP-NTS Diagnostic Tool Peer Responder`. The rule is deliberately limited to **UDP/123** and **Domain/Private** profiles; it does not open the Public profile. The firewall change is opt-in and is never silently applied.
+
+Elevation is primarily relevant to the peer responder and firewall configuration. The normal NTP/NTS diagnostic client does not require Administrator privileges.
+
 ### Automated peer responder self-test
 
 v2.1.0 also includes **Run Self-Test Suite**. The suite starts each responder mode on loopback using an ephemeral UDP port, generates controlled NTP requests, inspects the resulting wire packets, and reports explicit `[PASS]` / `[FAIL]` results in the Running Log. It covers the normal response, RATE/DENY/RSTR KoD, bad originate, short response, wrong mode/version, zero T2/T3, LI alarm, stratum 16, duplicate T3, replay, drop/timeout, delayed response, ±100 ms timestamp shifts, and 100 ms processing delay.
