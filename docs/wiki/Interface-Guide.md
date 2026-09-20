@@ -27,3 +27,12 @@ Sent: 500   Received: 500   Failures: 0   NTS Failures: 0   KoD Packets: 0
 ## Running Log
 
 The log shows request numbering, authenticated packet construction, UDP transmission/reception, NTP fields, offset/delay, UID matching, S2C tag verification, replacement cookies, and cookie-pool state.
+
+## Running Log controls
+
+The v2.0.2 and v2.1.0 GUI source includes **Copy Log** and **Clear Log** controls above the Running Log. **Copy Log** places the complete displayed log on the system clipboard. **Clear Log** removes the displayed text only; it does not stop an active request/responder operation or delete the configured log file.
+
+## Linux v2.1.0
+
+The Linux distribution uses a headless CLI rather than the Tkinter GUI. Its `query`, `peer`, and `self-test` commands are suitable for terminal and SSH use.
+
