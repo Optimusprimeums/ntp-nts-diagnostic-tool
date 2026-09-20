@@ -12,7 +12,7 @@ The interface contains **Configuration**, **Real-Time Statistics**, and **Runnin
 
 ## NTP Peer Test Responder (v2.1.0 development)
 
-The responder has a configurable **Bind** address, **UDP Port**, **Response Mode**, and independent **Start Responder / Stop Responder** controls. It monitors incoming peer/client requests in the Running Log and can return controlled valid or fault-injected NTP responses. See [NTP Peer Monitoring & Fault Injection](NTP-Peer-Monitoring-and-Fault-Injection.md).
+The responder has a configurable **Bind** address, **UDP Port**, **Response Mode**, independent **Start Responder / Stop Responder** controls, and **Run Self-Test Suite**. The self-test performs 19 loopback regression checks and reports PASS/FAIL results in the Running Log. It monitors incoming peer/client requests in the Running Log and can return controlled valid or fault-injected NTP responses. See [NTP Peer Monitoring & Fault Injection](NTP-Peer-Monitoring-and-Fault-Injection.md).
 
 ## Real-Time Statistics
 
