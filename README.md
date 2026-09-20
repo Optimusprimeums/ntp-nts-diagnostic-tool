@@ -1,6 +1,6 @@
 # NTP/NTS Diagnostic Tool
 
-A Windows diagnostic utility for testing **NTPv4** and **Network Time Security (NTS)** servers.
+A cross-platform diagnostic utility for testing **NTPv4** and **Network Time Security (NTS)** servers on Windows, Linux, and macOS.
 
 Version **2.0.2** remains the known-good NTS interoperability baseline. **v2.1.0 is the current development version** and adds an integrated NTP peer test responder and fault-injection/peer-monitoring tools. It performs real NTS Key Establishment over TLS 1.3, negotiates `ntske/1`, derives client-to-server and server-to-client keys with the TLS exporter, exchanges NTS cookies, creates authenticated NTP requests using AEAD AES-SIV-CMAC-256, verifies authenticated replies, and reports NTP offset and network delay.
 
@@ -54,9 +54,28 @@ The self-test validates the **responder's generated behavior**. It intentionally
 
 TLS certificate verification is enabled by default. **Skip TLS Verify** is intended only for controlled development and certificate-diagnostic testing. The application intentionally does not log derived NTS keys.
 
-## Windows build
+## Platform distributions
 
-End users can use the standalone Windows executable without installing Python. Developers can build from source with the included `build_windows.bat` or the GitHub Actions Windows workflow.
+GitHub Actions builds standalone distributions from the highest versioned `ntp_nts_tester_v*.py` source:
+
+- **Windows x86-64** — standalone `.exe`.
+- **Linux x86-64** — standalone executable packaged as `NTP-NTS-Diagnostic-Tool-Linux-x86_64.tar.gz`.
+- **macOS Apple Silicon** — native macOS application bundle packaged as `NTP-NTS-Diagnostic-Tool-macOS-AppleSilicon.tar.gz`.
+- **macOS Intel** — native Intel macOS application bundle packaged as `NTP-NTS-Diagnostic-Tool-macOS-Intel.tar.gz`.
+
+Pushes and pull requests build CI artifacts. A `v*` tag additionally attaches the platform archives to the GitHub Release.
+
+### Platform permissions
+
+The Windows v2.1.0 build provides its UAC and Windows Defender Firewall assistance in-app.
+
+On **Linux**, binding the peer responder to UDP/123 may require root or the `CAP_NET_BIND_SERVICE` capability depending on the system's privileged-port policy. Firewall configuration remains under the administrator's control.
+
+On **macOS**, UDP/123 may require elevated privileges depending on system configuration. Incoming connections can also be affected by macOS firewall/security policy. The application does not automatically elevate itself or alter firewall policy on Linux/macOS.
+
+The macOS CI artifacts are currently unsigned/not notarized development builds. Gatekeeper may therefore require explicit user approval. Production macOS distribution should add Developer ID signing and Apple notarization before being described as a trusted end-user package.
+
+Developers can build the Windows version with `build_windows.bat`; Linux/macOS distributions are produced by `.github/workflows/linux-macos-build.yml`.
 
 ## Standards
 
