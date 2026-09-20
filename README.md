@@ -4,9 +4,9 @@ A Windows diagnostic utility for testing **NTPv4** and **Network Time Security (
 
 Version **2.0.2** is the current known-good interoperability baseline. It performs real NTS Key Establishment over TLS 1.3, negotiates `ntske/1`, derives client-to-server and server-to-client keys with the TLS exporter, exchanges NTS cookies, creates authenticated NTP requests using AEAD AES-SIV-CMAC-256, verifies authenticated replies, and reports NTP offset and network delay.
 
-<!-- Replace with the real v2.0.2 application screenshot at screenshots/ntp-nts-diagnostic-tool-v2.0.2.png -->
+![Annotated NTP/NTS Diagnostic Tool v2.0.2 overview](screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
-> **Interface:** The v2.0.2 GUI provides server/FQDN, request count, delay, NTS/TLS controls, optional file logging, real-time counters, and a scrolling running log.
+*Annotated overview of the v2.0.2 interface and major diagnostic features.*
 
 ## Quick start
 
