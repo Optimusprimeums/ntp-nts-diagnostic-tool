@@ -8,6 +8,10 @@ Version **2.0.2** remains the known-good NTS interoperability baseline. **v2.1.0
 
 *Annotated overview of the v2.0.2 interface and major diagnostic features.*
 
+![Annotated NTP/NTS Diagnostic Tool v2.1.0 overview](screenshots/ntp-nts-diagnostic-tool-v2.1.0-overview.svg)
+
+*Annotated v2.1.0 development interface showing the integrated peer responder, responder self-test, and Copy/Clear Log controls.*
+
 ## Quick start
 
 1. Download the standalone Windows executable from the latest GitHub Release.
