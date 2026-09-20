@@ -46,3 +46,23 @@ The running log is the primary peer-monitoring record. For longer tests, enable 
 ## Scope
 
 This responder currently targets plain NTP packet behavior. NTS fault injection (bad UID, invalid authenticator, malformed encrypted extension fields, stale cookies, NTSN, and NTS-KE negotiation faults) is a separate future test layer because those cases require controlled modification of authenticated NTS structures.
+
+## Automated responder self-test
+
+Click **Run Self-Test Suite** to regression-test the integrated responder without requiring another machine. The suite binds each case to loopback on an ephemeral UDP port, generates a fresh NTP client request, captures the response, and checks the expected packet property.
+
+The current suite performs 19 checks covering valid replies, RATE/DENY/RSTR KoD, bad originate, 16-byte malformed replies, wrong mode/version, zero T2/T3, LI=3, stratum 16, duplicate T3, byte-for-byte replay, intentional packet drop, one-second delay, ±100 ms timestamp shifts, and approximately 100 ms T2→T3 processing delay.
+
+Results appear in the Running Log:
+
+```text
+=== PEER RESPONDER SELF-TEST: 19 checks ===
+[PASS] valid | response=48 bytes
+...
+[PASS] replay
+[PASS] drop | request intentionally unanswered
+...
+=== PEER RESPONDER SELF-TEST COMPLETE: 19 passed / 0 failed ===
+```
+
+A PASS means the local responder generated the intended wire behavior. It does **not** mean an external NTP implementation correctly handled that behavior. For peer interoperability testing, point the external peer at the responder and correlate this application's Running Log with the peer's own logs/status.
