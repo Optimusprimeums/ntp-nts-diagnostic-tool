@@ -2,9 +2,9 @@
 
 This guide explains how to use **NTP/NTS Diagnostic Tool v2.0.2** to test conventional NTPv4 servers and RFC 8915 Network Time Security servers from Windows.
 
-<!-- Real v2.0.2 screenshot target: ../../screenshots/ntp-nts-diagnostic-tool-v2.0.2.png -->
+![Annotated NTP/NTS Diagnostic Tool v2.0.2 overview](../../screenshots/ntp-nts-diagnostic-tool-overview.svg)
 
-The v2.0.2 interface is divided into **Configuration**, **Real-Time Statistics**, and **Running Log** sections.
+*Annotated overview. The application interface is divided into* **Configuration**, **Real-Time Statistics**, and **Running Log** sections.
 
 ## 1. Download and run
 
