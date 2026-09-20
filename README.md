@@ -59,7 +59,7 @@ TLS certificate verification is enabled by default. **Skip TLS Verify** is inten
 GitHub Actions builds standalone distributions from the highest versioned `ntp_nts_tester_v*.py` source:
 
 - **Windows x86-64** — standalone `.exe`.
-- **Linux x86-64** — standalone executable packaged as `NTP-NTS-Diagnostic-Tool-Linux-x86_64.tar.gz`.
+- **Linux x86-64** — headless command-line executable packaged as `NTP-NTS-Diagnostic-Tool-Linux-x86_64.tar.gz`; no X11/Wayland desktop is required.
 
 Pushes and pull requests build CI artifacts. A `v*` tag additionally attaches the platform archives to the GitHub Release.
 
@@ -67,9 +67,19 @@ Pushes and pull requests build CI artifacts. A `v*` tag additionally attaches th
 
 The Windows v2.1.0 build provides its UAC and Windows Defender Firewall assistance in-app.
 
+The Linux CLI provides three commands: `query` for NTP/NTS requests, `peer` for the headless fault-injection responder, and `self-test` for responder smoke testing. Examples:
+
+```bash
+./NTP-NTS-Diagnostic-Tool query time.cloudflare.com --nts -n 5
+./NTP-NTS-Diagnostic-Tool peer --bind 0.0.0.0 --port 123 --mode valid
+./NTP-NTS-Diagnostic-Tool self-test
+```
+
+The Linux executable itself does not require Tkinter, X11, Wayland, or a desktop session.
+
 On **Linux**, binding the peer responder to UDP/123 may require root or the `CAP_NET_BIND_SERVICE` capability depending on the system's privileged-port policy. Firewall configuration remains under the administrator's control.
 
-Developers can build the Windows version with `build_windows.bat`; the Linux distribution is produced by `.github/workflows/linux-macos-build.yml`.
+Developers can build the Windows version with `build_windows.bat`; the Linux distribution is produced by `.github/workflows/linux-build.yml`.
 
 ## Standards
 
