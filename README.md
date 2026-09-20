@@ -94,3 +94,12 @@ Client T1/T4 are application/userspace observations rather than NIC hardware tim
 ## License
 
 MIT.
+
+### v2.1.0 usability and Linux additions
+
+- **Copy Log** copies the complete current Running Log to the system clipboard.
+- **Clear Log** clears the on-screen Running Log without stopping an active test or deleting the configured log file.
+- The Linux distribution now has a **headless CLI** entry point for NTP/NTS queries, peer fault injection, and responder smoke tests; it is intended for SSH/server use without opening a GUI.
+- Linux commands: `query`, `peer`, and `self-test`.
+- Windows v2.1.0 retains the GUI, integrated peer responder, 19-condition GUI responder self-test, optional UAC restart, and opt-in Domain/Private UDP/123 firewall rule.
+
