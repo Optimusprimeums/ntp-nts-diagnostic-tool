@@ -2,7 +2,9 @@
 
 This guide explains how to use **NTP/NTS Diagnostic Tool v2.0.2** to test conventional NTPv4 servers and RFC 8915 Network Time Security servers from Windows.
 
-![NTP/NTS Diagnostic Tool interface](../../screenshots/interface-overview.svg)
+<!-- Real v2.0.2 screenshot target: ../../screenshots/ntp-nts-diagnostic-tool-v2.0.2.png -->
+
+The v2.0.2 interface is divided into **Configuration**, **Real-Time Statistics**, and **Running Log** sections.
 
 ## 1. Download and run
 
@@ -24,13 +26,35 @@ Windows may display a reputation warning for an unsigned executable. Verify that
 
 **Skip TLS certificate verification** disables certificate validation. Leave this unchecked for normal operation. It is intended only for controlled development and certificate troubleshooting.
 
-## 3. Test a normal NTP server
+**Log to File** enables persistent logging for long tests. Click **Select Log File...** to choose the destination shown beside the button. This is particularly useful for stability tests containing hundreds of requests.
+
+**Start Requests** begins the configured run. **Stop** interrupts an active run.
+
+## 3. Real-Time Statistics
+
+The statistics strip updates while the test runs:
+
+- **Sent** — number of NTP/NTS UDP requests sent.
+- **Received** — number of replies received.
+- **Failures** — request/transport/protocol failures counted by the application.
+- **NTS Failures** — failures specific to NTS authentication or processing.
+- **KoD Packets** — NTP Kiss-o'-Death responses.
+
+For a clean stability run, Sent and Received should track together while Failures, NTS Failures, and KoD Packets remain at zero. The supplied interface example shows a completed 500-request NTS stability test with `Sent: 500`, `Received: 500`, and all three failure counters at zero.
+
+## 4. Running Log
+
+The dark **Running Log** pane displays each protocol step in real time. During NTS operation it shows request numbering, authenticated packet construction, UDP transmission, source address, NTP header fields, offset/network delay, UID matching, S2C tag verification, replacement cookies, and cookie-pool state.
+
+When **Log to File** is enabled, preserve the log from long tests for later analysis rather than relying only on the visible scrollback.
+
+## 5. Test a normal NTP server
 
 Enter the server hostname or IP address, disable **Enable NTS**, choose the request count and delay, then start the test.
 
 A valid reply reports fields such as `LI`, `VN`, `Mode`, and `Stratum`, followed by calculated offset and network delay. A stratum-zero response is treated as a Kiss-o'-Death response and its reference identifier is reported.
 
-## 4. Test an NTS server
+## 6. Test an NTS server
 
 Enter the server's certificate-valid hostname, enable **Enable NTS**, leave TLS verification enabled, and start the test.
 
@@ -50,7 +74,7 @@ NTS AUTHENTICATED: UID matched, S2C tag verified, new cookies=1, pool=8
 
 That line is the important end-to-end NTS result: the response matched the request UID and its server-to-client authentication tag verified.
 
-## 5. Understanding the output
+## 7. Understanding the output
 
 **NTS-KE SUCCESS** means the TLS 1.3 key-establishment connection succeeded, the required `ntske/1` ALPN was negotiated, and an acceptable NTS AEAD algorithm was selected.
 
@@ -64,7 +88,7 @@ That line is the important end-to-end NTS result: the response matched the reque
 
 **new cookies=1, pool=8** means the authenticated response returned a replacement cookie and the client retained a full working cookie pool.
 
-## 6. Certificate-name errors
+## 8. Certificate-name errors
 
 With TLS verification enabled, the name entered in **Server** must match the server certificate.
 
@@ -78,7 +102,7 @@ if the certificate contains a DNS Subject Alternative Name but does not contain 
 
 Do not treat **Skip TLS certificate verification** as the normal fix; it removes server identity verification.
 
-## 7. Common failures
+## 9. Common failures
 
 **Connection refused / timeout on TCP 4460:** the NTS-KE service is unreachable, not listening, or blocked by a firewall.
 
@@ -92,13 +116,13 @@ Do not treat **Skip TLS certificate verification** as the normal fix; it removes
 
 **Originate timestamp mismatch or UID mismatch:** the received packet does not correspond to the request being validated.
 
-## 8. Interpreting timing results
+## 10. Interpreting timing results
 
 The program calculates standard NTP offset and delay, but Windows client T1/T4 are userspace/socket/system-clock observations rather than Ethernet NIC hardware timestamps. Network scheduling, OS scheduling, path asymmetry, and server timestamp placement can therefore affect the measurements.
 
 Use the tool for protocol validation, interoperability testing, and practical timing diagnostics. Do not interpret its displayed offset as a sub-microsecond hardware timestamp measurement.
 
-## 9. Example: public interoperability test
+## 11. Example: public interoperability test
 
 Use:
 
@@ -110,19 +134,25 @@ Use:
 
 A successful run should show NTS-KE success followed by authenticated NTP replies. Version 2.0.2 has been validated against this public service.
 
-## 10. Example: private NTS appliance/server
+## 12. Example: private NTS appliance/server
 
 Use the DNS hostname present in the server certificate, enable NTS, and keep TLS verification enabled. If DNS resolves that hostname to a private LAN address, that is fine: certificate identity is checked against the hostname you requested, not merely against the returned IP address.
 
 This workflow was used successfully against an independent ESP32-P4 NTS implementation.
 
-## 11. Logging and security
+## 13. Long-duration stability testing
+
+For an extended test, increase **Number of Requests**, select a suitable **Delay (ms)**, enable **Log to File**, choose the log destination, and start the run. For example, 500 requests with a 5000 ms delay exercises the server for roughly 42 minutes plus network/processing time.
+
+During the run, monitor the real-time counters. A result such as `Sent: 500`, `Received: 500`, `Failures: 0`, `NTS Failures: 0`, `KoD Packets: 0` demonstrates that all 500 configured exchanges completed without a counted failure. For NTS, the running log should also show `NTS AUTHENTICATED` for successful authenticated replies.
+
+## 14. Logging and security
 
 The application logs protocol state needed for diagnostics but intentionally does **not** log the derived C2S/S2C NTS keys.
 
 Before posting logs publicly, review them for private hostnames, internal IP addresses, infrastructure details, or other information specific to your environment.
 
-## 12. Standards implemented
+## 15. Standards implemented
 
 The diagnostic client is based on:
 
